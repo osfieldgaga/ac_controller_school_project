@@ -101,7 +101,7 @@ void loop() {
   irReceiver.decodeIR();
   yield();
 
-  
+  //change this!
   if(Serial.available()){
     
     String command = Serial.readStringUntil('\n');
