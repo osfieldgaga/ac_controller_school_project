@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"name": "school_project_Smart_AC_Controller",
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"string": "cpp",
+			"map": "cpp"
+		}
+	}
+}
