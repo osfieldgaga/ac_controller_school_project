@@ -5,7 +5,8 @@
 #include <WiFiHandler.hpp>
 #include <UniqueIdentifiers.hpp>
 
-#include <ESP8266WiFi.h>
+//#include <ESP8266WiFi.h>
+#include <WiFi.h>
 //#include <FirebaseHandler.hpp>
 
 //#include <Adafruit_Sensor.h>
@@ -21,6 +22,8 @@ int chk;
 float hum;  //Stores humidity value
 float temp;
 int dht_millis; //Stores temperature value
+
+bool hasBeenConfiguredAlready;
 
 
 EEPROM_Manager eeprom;
@@ -44,8 +47,9 @@ void setup() {
   irReceiver.initIR(); // Start the receiver
 
   delay(5000);
-
-  wifiHandler.establishWiFi();
+  
+//TODO: make this guy fetch from memory whenever it's needed to connect
+  wifiHandler.establishWiFi(); //TO-DO
   //firebaseHandler.connectFirebase();
   //firebaseHandler.setUpDatabase();
 
@@ -53,6 +57,8 @@ void setup() {
   
   dht.begin();
   dht_millis = 0;
+
+  //TODO let initial configuration happen here, check config status to decided when it's necessary
 }
 
 void loop() {

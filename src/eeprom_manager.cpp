@@ -39,7 +39,36 @@ void EEPROM_Manager::readFromMem(int acID, string instructionLabel){
         EEPROM.read(AC_list[acID + instruction_displacement[instructionLabel]]);
 }
 
+bool checkConfigState(){
+    //read from memory and check whether device has been configured already
+    //useful to skip the DB creation and other stuff that only need to be
+    //implemented only once
+    //TODO implement checkConfigState()
 
+    return false; //just for debug
+}
+
+void setConfigState(bool configState){
+    //set the configuration state in menory
+    //TODO implement setConfigState
+}
+
+void saveWiFiConfig(std::string ssid, std::string password){
+    //save the wifi credentials obtained from the phone in memory for later use
+    //TODO implement saveWiFiConfig
+}
+
+std::map<std::string, std::string> getWiFiConfig(){
+    //obtain saved configuration for later use 
+    //return a map with the ssid and password
+    //(should i use a table instead?)
+    //TODO implement getWiFiConfig
+
+    std::map<std::string, std::string> wifiCredentials;
+    wifiCredentials["ssid"] = "test";
+    wifiCredentials["password"] = "test";
+    return wifiCredentials; //just for debug
+}
         
 
 

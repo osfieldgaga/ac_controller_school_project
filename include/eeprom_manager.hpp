@@ -5,6 +5,8 @@
 #include <map>
 
 #define ESP12E_MEM_SIZE 1024
+#define ESP32_MEM_SIZE 00
+
 #define STARTING_ADDR 20
 #define INSTRUCTION_SET_SIZE 20
 
@@ -16,6 +18,10 @@ class EEPROM_Manager {
     void initializeMemory();
     void writeToMem(int acID, std::string instructionLabel, unsigned long instructionData);
     void readFromMem(int acID, std::string instructionLabel);
+    bool checkConfigState();
+    void setConfigState(bool configState);
+    void saveWiFiConfig(std::string ssid, std::string password);
+    std::map<std::string, std::string> getWiFiConfig();
 
     private:
         std::map<std::string, int> instruction_displacement {

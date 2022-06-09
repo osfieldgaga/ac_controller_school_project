@@ -10,7 +10,10 @@
 #include <ir_Midea.h>
 
 
-
+//TODO import supported AC libraries
+//TODO design a function to turn On any type of AC based on the type of the AC we're using
+//TODO set temperature with one fuction based on the type of AC
+//TODO 
 // An IR detector/demodulator is connected to GPIO pin 14(D5 on a NodeMCU
 // board).
 // Note: GPIO 16 won't work on the ESP8266 as it does not have interrupts.
@@ -45,6 +48,8 @@ bool hasAlreadySent = false;
 int IRReceiver::getPinNumber(){
     return kRecvPin;
 }
+
+
 
 void IRReceiver::initIR(){
     irrecv.enableIRIn(); 

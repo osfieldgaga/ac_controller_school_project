@@ -1,5 +1,5 @@
 #include <WiFiHandler.hpp>
-#include <ESP8266WiFi.h>
+#include <WiFi.h>
 #include <Arduino.h>
 
 const char* ssid1 = "Fido";
