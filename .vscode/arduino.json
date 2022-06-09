@@ -1,5 +1,5 @@
 {
-    "port": "COM14",
-    "configuration": "FlashFreq=80,UploadSpeed=921600,DebugLevel=none",
+    "port": "COM12",
+    "configuration": "FlashFreq=80,UploadSpeed=115200,DebugLevel=none",
     "board": "esp32:esp32:esp32doit-devkit-v1"
 }

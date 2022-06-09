@@ -7,15 +7,15 @@
 
 //#include <ESP8266WiFi.h>
 #include <WiFi.h>
-//#include <FirebaseHandler.hpp>
+#include <FirebaseHandler.hpp>
 
 //#include <Adafruit_Sensor.h>
-#include <DHT.h>
+#//include <DHT.h> //TODO add DHT library
 
 //Constants
 #define DHTPIN 12     // what pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302)
-DHT dht(DHTPIN, DHTTYPE); //// Initialize DHT sensor for normal 16mhz Arduino
+//DHT dht(DHTPIN, DHTTYPE); ////TODO Initialize DHT sensor for normal 16mhz Arduino
 
 //Variables
 int chk;
@@ -31,7 +31,7 @@ IRReceiver irReceiver;
 IRSender irSender;
 
 WiFiHandler wifiHandler;
-//FirebaseHandler firebaseHandler;
+FirebaseHandler firebaseHandler;
 
 
 const int kFirebaseRefreshRate = 2000; //2000ms = 2 seconds
@@ -55,7 +55,8 @@ void setup() {
 
   //prevACState = firebaseHandler.obtainACState();
   
-  dht.begin();
+  //TODO initialize dht
+  //dht.begin();
   dht_millis = 0;
 
   //TODO let initial configuration happen here, check config status to decided when it's necessary
@@ -64,20 +65,21 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   
-  if(millis() - dht_millis > 5000){
-    dht_millis = millis();
-    hum = dht.readHumidity();
-    temp= dht.readTemperature();
-    //Print temp and humidity values to serial monitor
+  //TODO Implement dht code
+  // if(millis() - dht_millis > 5000){
+  //   dht_millis = millis();
+  //   hum = dht.readHumidity();
+  //   temp= dht.readTemperature();
+  //   //Print temp and humidity values to serial monitor
 
     
     
-    Serial.print("Humidity: ");
-    Serial.print(hum);
-    Serial.print(" %, Temp: ");
-    Serial.print(temp);
-    Serial.println(" Celsius");
-  }
+  //   Serial.print("Humidity: ");
+  //   Serial.print(hum);
+  //   Serial.print(" %, Temp: ");
+  //   Serial.print(temp);
+  //   Serial.println(" Celsius");
+  // }
 
 
   // if(firebaseHandler.checkStatus() && millis() - now > kFirebaseRefreshRate){
