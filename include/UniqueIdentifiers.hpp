@@ -2,7 +2,6 @@
 #define UNIQUE_IDENTIFIERS
 
 #define DEVICE_ID_1 "TnOEDs0xzk29y6vlTNVhfA"
-#define DEVICE_ID_1 "TnOEDs0xzk29y6vlTNVhfA"
 #define DEVICE_ID_2 "rfohsHqqREKZxgN+lrLiVQ"
 #define DEVICE_ID_3 "oaaLWho9rUuPfHHqexOXDw"
 #define DEVICE_ID_4 "7fYVDomFakeVsar47SBY2Q"

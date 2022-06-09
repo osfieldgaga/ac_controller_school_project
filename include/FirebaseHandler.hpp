@@ -19,6 +19,7 @@ class FirebaseHandler{
         void testSetValue();
         void setUpDatabase();
         int obtainACState();
+        int obtainACTemperature();
 };
 
 #endif // MATH_H_INCLUDED

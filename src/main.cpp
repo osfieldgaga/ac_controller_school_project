@@ -34,9 +34,9 @@ WiFiHandler wifiHandler;
 FirebaseHandler firebaseHandler;
 
 
-const int kFirebaseRefreshRate = 2000; //2000ms = 2 seconds
+const int kFirebaseRefreshRate = 5000; //2000ms = 2 seconds
 unsigned long now = 0;
-int prevACState;
+int prevACState, prevACTemperature;
 
 void setup() {
   // put your setup code here, to run once:
@@ -50,7 +50,7 @@ void setup() {
   
 //TODO: make this guy fetch from memory whenever it's needed to connect
   wifiHandler.establishWiFi(); //TO-DO
-  //firebaseHandler.connectFirebase();
+  firebaseHandler.connectFirebase();
   //firebaseHandler.setUpDatabase();
 
   //prevACState = firebaseHandler.obtainACState();
@@ -60,6 +60,10 @@ void setup() {
   dht_millis = 0;
 
   //TODO let initial configuration happen here, check config status to decided when it's necessary
+
+  //get the current state and temperature in the DB
+  prevACState = firebaseHandler.obtainACState();
+  prevACTemperature = firebaseHandler.obtainACTemperature();
 }
 
 void loop() {
@@ -82,29 +86,68 @@ void loop() {
   // }
 
 
-  // if(firebaseHandler.checkStatus() && millis() - now > kFirebaseRefreshRate){
-  //   now = millis();
-  //   // do sonething related to firebase, this part is triggered only when the device is authenticated and when
-  //   // the threshold time is reached
+  if(firebaseHandler.checkStatus() && millis() - now > kFirebaseRefreshRate){
+    now = millis();
+    // do sonething related to firebase, this part is triggered only when the device is authenticated and when
+    // the threshold time is reached
+    Serial.print("Checking Firebase... ");
+   
 
+      //check if there has been a odification in the database data, which would mean a change in state
+      //if it's the case, change the state
+      if(firebaseHandler.obtainACState() != prevACState){
+        Serial.print("State changed.");
+        Serial.println();
+        if (firebaseHandler.obtainACState() == 1){
+          //when 1, the state of the AC is on
+          Serial.print("Turn AC ON");
+          Serial.println();
 
-  //     //check if there has been a odification in the database data, which would mean a change in state
-  //     //if it's the case, change the state
-  //     if(firebaseHandler.obtainACState() != prevACState){
-  //       if (firebaseHandler.obtainACState() == 1){
-  //         //when 1, the state of the AC is on
-  //         irReceiver.turnOnSamsung();
-  //       }else {
-  //         //normally if it's 0, Ac is off
-  //         irReceiver.turnOnSamsung();
-  //       }
+          //TODO send signal to turn off AC
+        }else if (firebaseHandler.obtainACState() == 0){
+          //normally if it's 0, Ac is off
+          Serial.print("Turn AC OFF");
+          Serial.println();
+
+          //TODO send signal to turn off AC
+        } else {
+          Serial.print("Invalid State");
+          Serial.println();
+        }
         
 
-  //       prevACState = firebaseHandler.obtainACState();
-  //     }
+        prevACState = firebaseHandler.obtainACState();
+      } else {
+         Serial.print("No state change... ");
+         Serial.println();
+      }
 
-      
-  //   }
+      //check change in temperature
+      if (firebaseHandler.obtainACTemperature() != prevACTemperature)
+      {
+        int ACTemperature;
+        Serial.print("Temperature changed");
+        Serial.println();
+        if (firebaseHandler.obtainACTemperature() >= 16 && firebaseHandler.obtainACTemperature() <= 30)
+        {
+          ACTemperature = firebaseHandler.obtainACTemperature();
+          Serial.print("Setting temperature at ");
+          Serial.print(ACTemperature);
+          Serial.println();
+        }
+        else
+        {
+          Serial.print("Temperature changed but is in an invalid range");
+          Serial.println();
+        }
+        prevACTemperature = ACTemperature;
+      }
+      else
+      {
+        Serial.print("No temperature change... ");
+        Serial.println();
+      }
+    }
 
   irReceiver.decodeIR();
   yield();
