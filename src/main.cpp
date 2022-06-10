@@ -10,6 +10,8 @@
 #include <WiFi.h>
 #include <FirebaseHandler.hpp>
 
+#include <string>
+
 //#include <Adafruit_Sensor.h>
 #//include <DHT.h> //TODO add DHT library
 
@@ -20,19 +22,18 @@
 
 //Variables
 int chk;
-float hum;  //Stores humidity value
-float temp;
-int dht_millis; //Stores temperature value
+float hum, temp;  //Stores humidity value
 
-bool hasSetPrefs;
+int dht_millis; //Stores temperature value
 
 
 EEPROM_Manager eeprom;
 IRReceiver irReceiver;
 IRSender irSender;
-
 WiFiHandler wifiHandler;
 FirebaseHandler firebaseHandler;
+
+int currentState = 0;
 
 //Prefs prefs_main;
 
@@ -40,6 +41,7 @@ FirebaseHandler firebaseHandler;
 const int kFirebaseRefreshRate = 5000; //2000ms = 2 seconds
 unsigned long now = 0;
 int prevACState, prevACTemperature;
+bool operationMode;
 
 void setup() {
   //initialize preferences system
@@ -62,11 +64,7 @@ void setup() {
 
   //TODO let initial configuration happen here, check config status to decided when it's necessary
 
-  //get the current state and temperature in the DB
   
-
-  
-
   //first time boot, run this just once
   //once setPrefsFirstTIme returns true, this guy isn't ran anymore
  
@@ -91,7 +89,8 @@ void setup() {
   }
 
   firebaseHandler.connectFirebase();
-  
+
+  //get the current state and temperature in the DB
   prevACState = firebaseHandler.obtainACState();
   prevACTemperature = firebaseHandler.obtainACTemperature();
   
@@ -132,44 +131,65 @@ void loop() {
   //   Serial.println(" Celsius");
   // }
 
+  
+  switch (currentState)
+  {
+  case 0: //wait for BT
+    /* code */
+    break;
+  
+  default:
+    break;
+  }
 
-  if(firebaseHandler.checkStatus() && millis() - now > kFirebaseRefreshRate){
-    now = millis();
-    // do sonething related to firebase, this part is triggered only when the device is authenticated and when
-    // the threshold time is reached
-    Serial.print("Checking Firebase... ");
-   
+  operationMode = firebaseHandler.onbtainOperationMode();
 
-      //check if there has been a odification in the database data, which would mean a change in state
-      //if it's the case, change the state
-      if(firebaseHandler.obtainACState() != prevACState){
-        Serial.print("State changed.");
+  if (operationMode == false)
+  {
+    if (firebaseHandler.checkStatus() && millis() - now > kFirebaseRefreshRate)
+    {
+      now = millis();
+      // do sonething related to firebase, this part is triggered only when the device is authenticated and when
+      // the threshold time is reached
+      Serial.print("Checking Firebase... ");
+
+      // check if there has been a modification in the database data, which would mean a change in state
+      // if it's the case, change the state
+      if (firebaseHandler.obtainACState() != prevACState)
+      {
+        Serial.print("State changed."); 
         Serial.println();
-        if (firebaseHandler.obtainACState() == 1){
-          //when 1, the state of the AC is on
+        if (firebaseHandler.obtainACState() == 1)
+        {
+          // when 1, the state of the AC is on
           Serial.print("Turn AC ON");
           Serial.println();
 
-          //TODO send signal to turn off AC
-        }else if (firebaseHandler.obtainACState() == 0){
-          //normally if it's 0, Ac is off
+          // TODO send signal to turn off AC
+        }
+        else if (firebaseHandler.obtainACState() == 0)
+        {
+          // normally if it's 0, Ac is off
           Serial.print("Turn AC OFF");
           Serial.println();
 
-          //TODO send signal to turn off AC
-        } else {
+          // TODO send signal to turn off AC
+        }
+        else
+        {
           Serial.print("Invalid State");
           Serial.println();
         }
-        
 
         prevACState = firebaseHandler.obtainACState();
-      } else {
-         Serial.print("No state change... ");
-         Serial.println();
+      }
+      else
+      {
+        Serial.print("No state change... ");
+        Serial.println();
       }
 
-      //check change in temperature
+      // check change in temperature
       if (firebaseHandler.obtainACTemperature() != prevACTemperature)
       {
         int ACTemperature;
@@ -197,6 +217,9 @@ void loop() {
         Serial.println();
       }
     }
+  }else {
+    //TODO implement automatic behavior
+  }
 
   irReceiver.decodeIR();
   yield();

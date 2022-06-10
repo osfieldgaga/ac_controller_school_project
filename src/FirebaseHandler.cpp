@@ -113,3 +113,15 @@ int FirebaseHandler::obtainACTemperature(){
 
     return temperature;
 }
+
+bool FirebaseHandler::onbtainOperationMode(){
+    bool opMode;
+    if(Firebase.RTDB.getBool(&fbdo, path_to_DB + "/" + "operation_mode")){
+        opMode = fbdo.to<bool>();
+    }else{
+        Serial.println(fbdo.errorReason());
+        opMode = NULL;
+    }
+
+    return opMode;
+}

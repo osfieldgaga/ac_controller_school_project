@@ -20,6 +20,7 @@ class FirebaseHandler{
         void setUpDatabase();
         int obtainACState();
         int obtainACTemperature();
+        bool onbtainOperationMode();
 };
 
 #endif // MATH_H_INCLUDED
