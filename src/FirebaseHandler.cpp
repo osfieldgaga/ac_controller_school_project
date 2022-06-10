@@ -62,6 +62,10 @@ void FirebaseHandler::setUpDatabase(){
     
     Firebase.RTDB.setInt(&fbdo, path_to_DB + "/" + "temperature", currentTemp);
 
+    String operationMode_path = "operation_mode";
+    bool currentOpMode = false; //false = manual, true = auto
+    Firebase.RTDB.setBool(&fbdo, path_to_DB + "/" + operationMode_path, currentOpMode);
+
     Serial.println("Created database (if not already there)");
 }
 

@@ -4,6 +4,7 @@
 #include <IR_Sender.hpp>
 #include <WiFiHandler.hpp>
 #include <UniqueIdentifiers.hpp>
+#include <Prefs.hpp>
 
 //#include <ESP8266WiFi.h>
 #include <WiFi.h>
@@ -23,7 +24,7 @@ float hum;  //Stores humidity value
 float temp;
 int dht_millis; //Stores temperature value
 
-bool hasBeenConfiguredAlready;
+bool hasSetPrefs;
 
 
 EEPROM_Manager eeprom;
@@ -33,12 +34,17 @@ IRSender irSender;
 WiFiHandler wifiHandler;
 FirebaseHandler firebaseHandler;
 
+//Prefs prefs_main;
+
 
 const int kFirebaseRefreshRate = 5000; //2000ms = 2 seconds
 unsigned long now = 0;
 int prevACState, prevACTemperature;
 
 void setup() {
+  //initialize preferences system
+  Prefs::initPrefs();
+
   // put your setup code here, to run once:
   eeprom.initializeMemory(); //compulsory
 
@@ -46,24 +52,65 @@ void setup() {
   Serial.begin(9600);
   irReceiver.initIR(); // Start the receiver
 
-  delay(5000);
-  
-//TODO: make this guy fetch from memory whenever it's needed to connect
-  wifiHandler.establishWiFi(); //TO-DO
-  firebaseHandler.connectFirebase();
-  //firebaseHandler.setUpDatabase();
-
-  //prevACState = firebaseHandler.obtainACState();
+  //delay(5000);
   
   //TODO initialize dht
   //dht.begin();
   dht_millis = 0;
 
+ 
+
   //TODO let initial configuration happen here, check config status to decided when it's necessary
 
   //get the current state and temperature in the DB
+  
+
+  
+
+  //first time boot, run this just once
+  //once setPrefsFirstTIme returns true, this guy isn't ran anymore
+ 
+  if(Prefs::hasSetPrefsFirstTime() != true){
+    Prefs::setWiFiConfig(false);
+    Prefs::setDeviceConfig(false);
+
+    Prefs::setPrefsFirstTime();
+  }
+  
+  //Set wifi config to true
+  if(!Prefs::checkWiFiConfig()){
+
+    //TODO do what is necessary to set up wifi
+    
+    Prefs::setWifiSSID("ZEPHYRUS 4870");
+    Prefs::setWifiPassword("14R5<24L");
+    Prefs::setWiFiConfig(true);
+    
+  }else {
+    wifiHandler.establishWiFi();
+  }
+
+  firebaseHandler.connectFirebase();
+  
   prevACState = firebaseHandler.obtainACState();
   prevACTemperature = firebaseHandler.obtainACTemperature();
+  
+
+  //TODO setup database automatically
+
+  //firebaseHandler.setUpDatabase();
+
+  // if(!Prefs::checkDeviceConfig()){
+
+  //   //firebaseHandler.setUpDatabase();
+  //   Prefs::setDeviceConfig(true);
+  // }else {
+    
+    
+  //}
+  
+  
+
 }
 
 void loop() {
@@ -141,10 +188,12 @@ void loop() {
           Serial.println();
         }
         prevACTemperature = ACTemperature;
+        Serial.println();
       }
       else
       {
         Serial.print("No temperature change... ");
+        Serial.println();
         Serial.println();
       }
     }
