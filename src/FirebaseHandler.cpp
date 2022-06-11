@@ -19,6 +19,8 @@ FirebaseConfig config;
 
 
 bool testBool = false;
+bool configDone = false;
+
 
 String path_to_DB = DEVICE_ID_1;
 
@@ -47,12 +49,12 @@ void FirebaseHandler::setUpDatabase(){
     //path_to_DB = path_to_DB + "/";
 
     //create state of the device
-    String state_path = "state";
-    int currentStatOfAc = 0;
+    String state_path = F("state");
+    uint8_t currentStatOfAc = 0;
     Firebase.RTDB.setInt(&fbdo, path_to_DB + "/" + "state", currentStatOfAc);
 
-    String temp_path = "temperature";
-    int currentTemp;
+    String temp_path = F("temperature");
+    uint8_t currentTemp;
     //just make sure you're getting an aactual value, and always start with the previous state
     // if(Firebase.RTDB.getInt(&fbdo, path_to_DB + "/" + "temperature") == NULL){
     //     currentTemp = 25;
@@ -62,16 +64,38 @@ void FirebaseHandler::setUpDatabase(){
     
     Firebase.RTDB.setInt(&fbdo, path_to_DB + "/" + "temperature", currentTemp);
 
-    String operationMode_path = "operation_mode";
+    String operationMode_path =  F("operation_mode");
     bool currentOpMode = false; //false = manual, true = auto
     Firebase.RTDB.setBool(&fbdo, path_to_DB + "/" + operationMode_path, currentOpMode);
 
-    Serial.println("Created database (if not already there)");
+    String path_to_config = path_to_DB + "/" + "configuration/";
+    Firebase.RTDB.setString(&fbdo, path_to_config + "nickname", "[empty]");
+    Firebase.RTDB.setString(&fbdo, path_to_config + "ac_brand", "[empty]");
+    Firebase.RTDB.setString(&fbdo, path_to_config + "room_type", "[empty]");
+
+    Firebase.RTDB.setBool(&fbdo, path_to_config + "configDone", configDone);
+
+    Serial.println(F("Created database (if not already there)"));
 }
 
 bool FirebaseHandler::checkStatus(){
     return Firebase.ready();
     
+}
+
+bool FirebaseHandler::checkIfConfigDone(){
+    if (Firebase.RTDB.getBool(&fbdo, path_to_DB + "/configuration/configDone"))
+    {
+        configDone = fbdo.to<bool>();
+    }
+    else
+    {
+        Serial.println(F("Could not check config status. Reason: "));
+        Serial.println(fbdo.errorReason());
+        configDone = NULL;
+    }
+
+    return configDone; 
 }
 
 void FirebaseHandler::signUpUSer(){
@@ -83,18 +107,19 @@ void FirebaseHandler::testSetValue(){
     testBool = !testBool;
     Firebase.RTDB.setBool(&fbdo, "test/bool", testBool);
     Serial.println();
-    Serial.print("Wrote a value of ");
+    Serial.print(F("Wrote a value of "));
     Serial.println(testBool);
 }
 
-int FirebaseHandler::obtainACState(){
-    int result_state;
+uint8_t FirebaseHandler::obtainACState(){
+    uint8_t result_state;
     if (Firebase.RTDB.getInt(&fbdo, path_to_DB + "/" + "state"))
     {
         result_state = fbdo.to<int>();
     }
     else
     {
+        Serial.println(F("Could not get AC state. Reason: "));
         Serial.println(fbdo.errorReason());
         result_state = NULL;
     }
@@ -102,11 +127,12 @@ int FirebaseHandler::obtainACState(){
     return result_state;
 }
 
-int FirebaseHandler::obtainACTemperature(){
-    int temperature;
+uint8_t FirebaseHandler::obtainACTemperature(){
+    uint8_t temperature;
     if(Firebase.RTDB.getInt(&fbdo, path_to_DB + "/" + "temperature")){
         temperature = fbdo.to<int>();
     }else{
+        Serial.println(F("Could not get AC temperature. Reason: "));
         Serial.println(fbdo.errorReason());
         temperature = NULL;
     }
@@ -119,6 +145,7 @@ bool FirebaseHandler::onbtainOperationMode(){
     if(Firebase.RTDB.getBool(&fbdo, path_to_DB + "/" + "operation_mode")){
         opMode = fbdo.to<bool>();
     }else{
+        Serial.println(F("Could not get AC operation mode. Reason: "));
         Serial.println(fbdo.errorReason());
         opMode = NULL;
     }

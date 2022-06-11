@@ -11,7 +11,7 @@ class IRReceiver{
 
         void turnOnTCL();
         void turnOffTCL();
-        void setTCLTemp(int temp);
+        void setTCLTemp(uint8_t temp);
         void turnOnMidea();
         void turnOffMidea();
     private:

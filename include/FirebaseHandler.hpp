@@ -18,9 +18,10 @@ class FirebaseHandler{
         void signUpUSer();
         void testSetValue();
         void setUpDatabase();
-        int obtainACState();
-        int obtainACTemperature();
+        uint8_t obtainACState();
+        uint8_t obtainACTemperature();
         bool onbtainOperationMode();
+        bool checkIfConfigDone();
 };
 
 #endif // MATH_H_INCLUDED

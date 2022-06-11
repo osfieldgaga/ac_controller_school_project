@@ -21,11 +21,11 @@
 #ifdef ARDUINO_ESP32C3_DEV
 const uint16_t kRecvPin = 10;  // 14 on a ESP32-C3 causes a boot loop.
 #else  // ARDUINO_ESP32C3_DEV
-const uint16_t kRecvPin = 13;
+const uint8_t kRecvPin = 13;
 
 #endif  // ARDUINO_ESP32C3_DEV
 
-const uint16_t kSendPin = 14;
+const uint8_t kSendPin = 14;
 
 
 IRsend irsend(kSendPin);
@@ -39,9 +39,9 @@ IRSamsungAc irSamsung(kSendPin);
 IRTcl112Ac irTCL(kSendPin);
 IRMideaAC irMidea(kSendPin);
 
-const uint16_t kFrequency = 38;
+const uint8_t kFrequency = 38;
 
-decode_results results, results2;
+decode_results results;
 
 bool hasAlreadySent = false;
 
@@ -61,13 +61,13 @@ void IRReceiver::initIR(){
 
 void IRReceiver::turnOnSamsung(){
     irSamsung.sendOn();
-    Serial.println("Samsung AC On");
+    Serial.println(F("Samsung AC On"));
     Serial.println();
 }
 
 void IRReceiver::turnOffSamsung(){
     irSamsung.sendOff();
-    Serial.println("Samsung AC off");
+    Serial.println(F("Samsung AC off"));
     Serial.println();
     
 }
@@ -75,24 +75,24 @@ void IRReceiver::turnOffSamsung(){
 void IRReceiver::turnOnTCL(){
     irTCL.on();
     irTCL.send();
-    Serial.println("TCL AC On");
+    Serial.println(F("TCL AC On"));
     Serial.println();
 }
 
 void IRReceiver::turnOffTCL(){
     irTCL.off();
     irTCL.send();
-    Serial.println("TCL AC off");
+    Serial.println(F("TCL AC off"));
     Serial.println();
     
 }
 
-void IRReceiver::setTCLTemp(int temp){
+void IRReceiver::setTCLTemp(uint8_t temp){
     irTCL.setTemp(temp);
     irTCL.send();
-    Serial.print("TCL Temperature set at ");
+    Serial.print(F("TCL Temperature set at "));
     Serial.print(temp);
-    Serial.println(" degrees");
+    Serial.println(F(" degrees"));
 
     Serial.println();
 }
@@ -100,14 +100,14 @@ void IRReceiver::setTCLTemp(int temp){
 void IRReceiver::turnOnMidea(){
     irMidea.on();
     irMidea.send();
-    Serial.println("Midea AC on");
+    Serial.println(F("Midea AC on"));
     Serial.println();
 }
 
 void IRReceiver::turnOffMidea(){
     irMidea.off();
     irMidea.send();
-    Serial.println("Midea AC off");
+    Serial.println(F("Midea AC off"));
     Serial.println();
 }
 
@@ -133,7 +133,7 @@ void IRReceiver::decodeIR(){
   
   if (irrecv.decode(&results)) {  // Grab an IR code
         // Check if the buffer overflowed
-        if (results.overflow || results2.overflow) {
+        if (results.overflow) {
             Serial.println(F("Overflow detected"));
             //Serial.println("Try to increase the \"RAW_BUFFER_LENGTH\" value of " STR(RAW_BUFFER_LENGTH) " in " __FILE__);
             // see also https://github.com/Arduino-IRremote/Arduino-IRremote#modifying-compile-options-with-sloeber-ide
@@ -142,18 +142,18 @@ void IRReceiver::decodeIR(){
            
             Serial.println();                               // 2 blank lines between entries
             Serial.println();
-            Serial.println("Results 1");
+            Serial.println(F("Results 1"));
             
-            Serial.print("Bits: ");
+            Serial.print(F("Bits: "));
             Serial.print(results.bits);
             Serial.println();
-            Serial.print("Timing info: ");
+            Serial.print(F("Timing info: "));
             Serial.print(resultToTimingInfo(&results));
 
             delay(5000);
           
             Serial.println();
-            Serial.print("Sending IR received");
+            Serial.print(F("Sending IR received"));
             Serial.println();
             uint16_t *raw_array = resultToRawArray(&results);
   

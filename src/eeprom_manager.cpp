@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include <map>
-#include <constants.hpp>
 
 using namespace std;
 
@@ -28,7 +27,7 @@ void EEPROM_Manager::initializeMemory(){
 
 
 void EEPROM_Manager::writeToMem(int acID, string instructionLabel, unsigned long instructionData){
-        EEPROM.write(AC_list[acID + instruction_displacement[instructionLabel]], instructionData);
+        //EEPROM.write(AC_list[acID + instruction_displacement[instructionLabel]], instructionData);
         //what does this do exactly?
         //the starting address of the instruction of each AC is stored in the table AC_list
         //the map instruction_displacement contains the distance from the first instruction
@@ -36,7 +35,7 @@ void EEPROM_Manager::writeToMem(int acID, string instructionLabel, unsigned long
 }
 
 void EEPROM_Manager::readFromMem(int acID, string instructionLabel){
-        EEPROM.read(AC_list[acID + instruction_displacement[instructionLabel]]);
+        //EEPROM.read(AC_list[acID + instruction_displacement[instructionLabel]]);
 }
 
 bool checkConfigState(){
@@ -58,17 +57,17 @@ void saveWiFiConfig(std::string ssid, std::string password){
     //TODO implement saveWiFiConfig
 }
 
-std::map<std::string, std::string> getWiFiConfig(){
-    //obtain saved configuration for later use 
-    //return a map with the ssid and password
-    //(should i use a table instead?)
-    //TODO implement getWiFiConfig
+// std::map<std::string, std::string> getWiFiConfig(){
+//     //obtain saved configuration for later use 
+//     //return a map with the ssid and password
+//     //(should i use a table instead?)
+//     //TODO implement getWiFiConfig
 
-    std::map<std::string, std::string> wifiCredentials;
-    wifiCredentials["ssid"] = "test";
-    wifiCredentials["password"] = "test";
-    return wifiCredentials; //just for debug
-}
+//     std::map<std::string, std::string> wifiCredentials;
+//     wifiCredentials["ssid"] = "test";
+//     wifiCredentials["password"] = "test";
+//     return wifiCredentials; //just for debug
+// }
         
 
 

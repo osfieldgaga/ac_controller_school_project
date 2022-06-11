@@ -1,8 +1,6 @@
 #include <Preferences.h>
 #include <Prefs.hpp>
 
-// #include <string>
-// #include <vector>
 using namespace std;
 
 Preferences prefs;
