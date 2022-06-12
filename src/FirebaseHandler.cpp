@@ -20,7 +20,7 @@ FirebaseConfig config;
 
 bool testBool = false;
 bool configDone = false;
-
+String uid;
 
 String path_to_DB = DEVICE_ID_1;
 
@@ -42,6 +42,9 @@ void FirebaseHandler::connectFirebase(){
 
     // Comment or pass false value when WiFi reconnection will control by your code or third party library
     Firebase.reconnectWiFi(true);
+
+    //sign up right after initialization to prevent annoying errors
+    signUpUSer();
 }
 
 void FirebaseHandler::setUpDatabase(){
@@ -55,13 +58,7 @@ void FirebaseHandler::setUpDatabase(){
 
     String temp_path = F("temperature");
     uint8_t currentTemp;
-    //just make sure you're getting an aactual value, and always start with the previous state
-    // if(Firebase.RTDB.getInt(&fbdo, path_to_DB + "/" + "temperature") == NULL){
-    //     currentTemp = 25;
-    // }else {
-    //     currentTemp = Firebase.RTDB.getInt(&fbdo, path_to_DB + "/" + "temperature");
-    // }
-    
+  
     Firebase.RTDB.setInt(&fbdo, path_to_DB + "/" + "temperature", currentTemp);
 
     String operationMode_path =  F("operation_mode");
@@ -74,6 +71,12 @@ void FirebaseHandler::setUpDatabase(){
     Firebase.RTDB.setString(&fbdo, path_to_config + "room_type", "[empty]");
 
     Firebase.RTDB.setBool(&fbdo, path_to_config + "configDone", configDone);
+
+    String path_to_parameters = path_to_DB + "/parameters/";
+    Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "room_temperature", 0.0f);
+    Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "outside_temperature", 0.0f);
+    Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "room_humidity", 0.0f);
+    Firebase.RTDB.setBool(&fbdo, path_to_parameters + "room_occupancy", false);
 
     Serial.println(F("Created database (if not already there)"));
 }
@@ -101,11 +104,29 @@ bool FirebaseHandler::checkIfConfigDone(){
 void FirebaseHandler::signUpUSer(){
     Firebase.signUp <std::string, std::string>(&config, &auth, USER_EMAIL, USER_PASSWORD);
 
+    Serial.println(F("Getting User UID"));
+    while ((auth.token.uid) == "")
+    {
+        Serial.print('.');
+        delay(1000);
+    }
+    // Print user UID
+    uid = auth.token.uid.c_str();
+    Serial.print(F("User UID: "));
+    Serial.print(uid);
+    Serial.println();
+
+    Serial.println(F("Signed up user"));
 }
 
 void FirebaseHandler::testSetValue(){
     testBool = !testBool;
-    Firebase.RTDB.setBool(&fbdo, "test/bool", testBool);
+    if(Firebase.RTDB.setBool(&fbdo, "test/bool", testBool)){
+
+    }else{
+        Serial.println(F("Could not write test value. Reason: "));
+        Serial.println(fbdo.errorReason());
+    }
     Serial.println();
     Serial.print(F("Wrote a value of "));
     Serial.println(testBool);

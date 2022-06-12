@@ -21,6 +21,9 @@ class Prefs{
     static std::vector<std::string> getWifiCredentials();
     static bool hasSetPrefsFirstTime();
     static void setPrefsFirstTime();
+    static void resetFirstTime();
+    static void setFirebaseConfig(bool firebaseStatus);
+    static bool checkFirebaseConfig();
 };
 
 #endif // 

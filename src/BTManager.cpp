@@ -41,7 +41,7 @@ void BTManager::getWiFiCredentials(){
     }
 
     
-delay(100);
+delay(1000);
 }
 
 String BTManager::getSSID(){

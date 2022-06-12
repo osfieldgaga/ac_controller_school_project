@@ -45,6 +45,12 @@ void Prefs::setWiFiConfig(bool wifiStatus){
     prefs.putBool("isWiFiConfig", wifiStatus);
 }
 
+void Prefs::setFirebaseConfig(bool firebaseStatus){
+
+    prefs.putBool("isFBConfig", firebaseStatus);
+    Serial.println(F("Set fb config true"));
+}
+
 void Prefs::setPrefsFirstTime(){
     prefs.putBool("hasSetPrefs", true);
 }
@@ -53,13 +59,20 @@ bool Prefs::hasSetPrefsFirstTime(){
     return prefs.getBool("hasSetPrefs");
 }
 
+void Prefs::resetFirstTime(){
+    prefs.putBool("hasSetPrefs", false);
+}
+
 
 
 //Device configurartion
+bool Prefs::checkFirebaseConfig(){
+    return prefs.getBool("isFBConfig");
+}
+
 bool Prefs::checkDeviceConfig(){
     return prefs.getBool("isDeviceConfig");
 }
-
 void Prefs::setDeviceConfig(bool deviceStatus){
     prefs.putBool("isDeviceConfig", deviceStatus);
 }

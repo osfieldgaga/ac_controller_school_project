@@ -41,7 +41,7 @@ uint8_t currentState = 0;
 
 
 const int kFirebaseRefreshRate = 5000; //2000ms = 2 seconds
-unsigned long now = 0;
+unsigned long now = 0, now2 = 0;
 uint8_t prevACState, prevACTemperature;
 bool operationMode;
 
@@ -112,12 +112,26 @@ void setup() {
     
   //}
   
-  currentState = 0;
-  Prefs::setWiFiConfig(false);
-  Prefs::setDeviceConfig(false);
+  //currentState = 0;
+  if(!Prefs::hasSetPrefsFirstTime()){
+    Prefs::setWiFiConfig(false);
+    Prefs::setDeviceConfig(false);
+    Prefs::setFirebaseConfig(false);
+
+    Prefs::setPrefsFirstTime();
+  }
+
   // firebaseHandler.connectFirebase();
   // firebaseHandler.signUpUSer();
   // firebaseHandler.testSetValue();
+
+  //if wifi is already conif, simply go to connect, else grab credentials using BT
+  if(!Prefs::checkWiFiConfig()){
+    currentState = 0;
+  } else {
+    currentState = 1;
+  }
+  
 
 }
 
@@ -142,7 +156,7 @@ void loop() {
 
   switch (currentState)
   {
-  case 0: // wait for BT
+  case 0: // wait for BT and grab credentials
     btManager.getWiFiCredentials();
 
     if (btManager.checkDone())
@@ -151,21 +165,21 @@ void loop() {
     }
     break;
 
-  case 1: // connect wifi
+  case 1: // connect wifi with received credentials
 
-    if (!Prefs::checkWiFiConfig())
+    if (!Prefs::checkWiFiConfig()) //if wifi not configured, set preference
     {
-
-      // TODO do what is necessary to set up wifi
       Serial.println(F("Connecting WiFi using received credentials"));
       
       Prefs::setWifiSSID(btManager.getSSID());
       Prefs::setWifiPassword(btManager.getPassword());
+
+      //credentials received, save preference
       Prefs::setWiFiConfig(true);
     }
     else
     {
-
+      //if wifi already config when device boot, simply connect wifi
       wifiHandler.establishWiFi();
       currentState = 2;
     }
@@ -173,27 +187,32 @@ void loop() {
     break;
 
   case 2: //connect to firebase
-    firebaseHandler.connectFirebase();
+
     if(firebaseHandler.checkStatus()){
-      if (!Prefs::checkDeviceConfig())
+      if (!Prefs::checkFirebaseConfig()) //if first time, create database
       {
         Serial.println(F("Configuring Firebase"));
-        // firebaseHandler.connectFirebase();
-        firebaseHandler.signUpUSer();
-        //firebaseHandler.testSetValue();
+        firebaseHandler.testSetValue();
         firebaseHandler.setUpDatabase();
-        Prefs::setDeviceConfig(true);
+        Prefs::setFirebaseConfig(true);
       }
-      else
+      else //if not first time, simply grab values there
       {
-        Serial.println(F("Connecting to Firebase"));
-        // firebaseHandler.connectFirebase();
-
         prevACState = firebaseHandler.obtainACState();
         prevACTemperature = firebaseHandler.obtainACTemperature();
 
-        currentState = 3;
+        if (!Prefs::checkDeviceConfig())
+        {
+          currentState = 3; //if first time, go get AC config
+        }
+        else
+        {
+          currentState = 4; //else, device was configured before and just go to ormal operation mode
+        }
       }
+    }else{
+      firebaseHandler.connectFirebase();
+      Serial.println(F("Connecting to Firebase, waiting for token"));
     }
     
   break;
@@ -213,6 +232,7 @@ void loop() {
       else
       {
         Serial.println(F("Config received"));
+        Prefs::setDeviceConfig(true);
         currentState = 4;
       }
     }
@@ -228,7 +248,7 @@ void loop() {
       if (firebaseHandler.checkStatus() && millis() - now > kFirebaseRefreshRate)
       {
         now = millis();
-        // do sonething related to firebase, this part is triggered only when the device is authenticated and when
+        // do something related to firebase, this part is triggered only when the device is authenticated and when
         // the threshold time is reached
         Serial.print(F("Checking Firebase... "));
 
@@ -244,7 +264,7 @@ void loop() {
             Serial.print(F("Turn AC ON"));
             Serial.println();
 
-            // TODO send signal to turn off AC
+            // TODO send signal to turn on AC
           }
           else if (firebaseHandler.obtainACState() == 0)
           {
@@ -308,6 +328,16 @@ void loop() {
     break;
   }
 
+  if (millis() - now2 > 10000){
+    now2 = millis();
+    Serial.println();
+    Serial.println(F("Free RAM: "));
+    Serial.print(ESP.getFreeHeap());
+    Serial.println();
+    Serial.println();
+  }
+ 
+
   
 
   irReceiver.decodeIR();
@@ -340,6 +370,18 @@ void loop() {
 
     }else if (command.equals(F("midea_off"))){
       irReceiver.turnOffMidea();
+    
+    }else if (command.equals(F("change_wifi"))){
+      Prefs::setWiFiConfig(false);
+      ESP.restart();
+    }
+    
+
+    else if(command.equals("reset_prefs")){
+      Prefs::resetFirstTime();
+      Serial.println(F("Reset preferences and restarting"));
+
+      ESP.restart();
     }
     
     else{
