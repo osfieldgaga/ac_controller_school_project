@@ -8,10 +8,12 @@ class IRReceiver{
         int getPinNumber();
         void turnOnSamsung();
         void turnOffSamsung();
-
+        void turnOnAC();
+        void turnOffAC();
         void turnOnTCL();
         void turnOffTCL();
         void setTCLTemp(uint8_t temp);
+        void setACTemp(uint8_t temp);
         void turnOnMidea();
         void turnOffMidea();
     private:

@@ -14,10 +14,10 @@
 #include <string>
 
 //#include <Adafruit_Sensor.h>
-#//include <DHT.h> //TODO add DHT library
+//#include <DHT.h> //TODO add DHT library
 
 //Constants
-#define DHTPIN 12     // what pin we're connected to
+#define DHTPIN 4     // what pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302)
 //DHT dht(DHTPIN, DHTTYPE); ////TODO Initialize DHT sensor for normal 16mhz Arduino
 
@@ -67,50 +67,6 @@ void setup() {
  
 
   //TODO let initial configuration happen here, check config status to decided when it's necessary
-
-  
-  //first time boot, run this just once
-  //once setPrefsFirstTIme returns true, this guy isn't ran anymore
- 
-  // if(Prefs::hasSetPrefsFirstTime() != true){
-  //   Prefs::setWiFiConfig(false);
-  //   Prefs::setDeviceConfig(false);
-
-  //   Prefs::setPrefsFirstTime();
-  // }
-  
-  //Set wifi config to true
-  // if(!Prefs::checkWiFiConfig()){
-
-  //   //TODO do what is necessary to set up wifi
-    
-  //   Prefs::setWifiSSID("ZEPHYRUS 4870");
-  //   Prefs::setWifiPassword("14R5<24L");
-  //   Prefs::setWiFiConfig(true);
-    
-  // }else {
-  //   wifiHandler.establishWiFi();
-  // }
-
-  //firebaseHandler.connectFirebase();
-
-  //get the current state and temperature in the DB
-  // prevACState = firebaseHandler.obtainACState();
-  // prevACTemperature = firebaseHandler.obtainACTemperature();
-  
-
-  //TODO setup database automatically
-
-  //firebaseHandler.setUpDatabase();
-
-  // if(!Prefs::checkDeviceConfig()){
-
-  //   //firebaseHandler.setUpDatabase();
-  //   Prefs::setDeviceConfig(true);
-  // }else {
-    
-    
-  //}
   
   //currentState = 0;
   if(!Prefs::hasSetPrefsFirstTime()){
@@ -120,10 +76,6 @@ void setup() {
 
     Prefs::setPrefsFirstTime();
   }
-
-  // firebaseHandler.connectFirebase();
-  // firebaseHandler.signUpUSer();
-  // firebaseHandler.testSetValue();
 
   //if wifi is already conif, simply go to connect, else grab credentials using BT
   if(!Prefs::checkWiFiConfig()){
@@ -137,22 +89,6 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  
-  //TODO Implement dht code
-  // if(millis() - dht_millis > 5000){
-  //   dht_millis = millis();
-  //   hum = dht.readHumidity();
-  //   temp= dht.readTemperature();
-  //   //Print temp and humidity values to serial monitor
-
-    
-    
-  //   Serial.print("Humidity: ");
-  //   Serial.print(hum);
-  //   Serial.print(" %, Temp: ");
-  //   Serial.print(temp);
-  //   Serial.println(" Celsius");
-  // }
 
   switch (currentState)
   {
@@ -231,7 +167,14 @@ void loop() {
       }
       else
       {
+        firebaseHandler.obtainACConfiguration();
         Serial.println(F("Config received"));
+        Serial.print(F("AC Brand: "));
+        Serial.println(Prefs::getACBrand());
+        Serial.print(F("AC Nickname: "));
+        Serial.println(Prefs::getACNickname());
+        Serial.print(F("Room Type: "));
+        Serial.println(Prefs::getRoomType());
         Prefs::setDeviceConfig(true);
         currentState = 4;
       }
@@ -262,6 +205,7 @@ void loop() {
           {
             // when 1, the state of the AC is on
             Serial.print(F("Turn AC ON"));
+            irReceiver.turnOnAC();
             Serial.println();
 
             // TODO send signal to turn on AC
@@ -269,6 +213,7 @@ void loop() {
           else if (firebaseHandler.obtainACState() == 0)
           {
             // normally if it's 0, Ac is off
+            irReceiver.turnOnAC();
             Serial.print(F("Turn AC OFF"));
             Serial.println();
 
@@ -300,6 +245,7 @@ void loop() {
             Serial.print(F("Setting temperature at "));
             Serial.print(ACTemperature);
             Serial.println();
+            irReceiver.setACTemp(ACTemperature);
           }
           else
           {
@@ -322,6 +268,25 @@ void loop() {
       // TODO implement automatic behavior
       Serial.println(F("Automatic Mode activated."));
     }
+
+    // check tmperature and humidity
+    //send it to database
+  // if(millis() - dht_millis > 5000){
+  //   dht_millis = millis();
+  //   hum = dht.readHumidity();
+  //   temp= dht.readTemperature();
+  //   //Print temp and humidity values to serial monitor
+
+    
+    
+  //   Serial.print("Humidity: ");
+  //   Serial.print(hum);
+  //   Serial.print(" %, Temp: ");
+  //   Serial.print(temp);
+  //   Serial.println(" Celsius");
+
+  //   firebaseHandler.sendRoomTelemetry(temp, hum);
+  // }
   break;
 
   default:
@@ -374,6 +339,12 @@ void loop() {
     }else if (command.equals(F("change_wifi"))){
       Prefs::setWiFiConfig(false);
       ESP.restart();
+    }else if(command.equals(F("ac_on"))){
+      irReceiver.turnOnAC();
+    }else if(command.equals(F("ac_off"))){
+      irReceiver.turnOffAC();
+    }else if(command.toInt() >= 16 && command.toInt() <= 30){
+      irReceiver.setACTemp(command.toInt());
     }
     
 

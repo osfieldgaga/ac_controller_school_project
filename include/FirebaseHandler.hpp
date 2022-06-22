@@ -22,6 +22,8 @@ class FirebaseHandler{
         uint8_t obtainACTemperature();
         bool onbtainOperationMode();
         bool checkIfConfigDone();
+        void obtainACConfiguration();
+        void sendRoomTelemetry(float temperature, float humidity);
 };
 
 #endif // MATH_H_INCLUDED

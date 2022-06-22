@@ -63,6 +63,24 @@ void Prefs::resetFirstTime(){
     prefs.putBool("hasSetPrefs", false);
 }
 
+void Prefs::setACConfig(String ac_brand, String nickname, String room_type){
+    prefs.putString("ac_brand", ac_brand);
+    prefs.putString("nickname", nickname);
+    prefs.putString("room_type", room_type);
+}
+
+String Prefs::getACBrand(){
+    return prefs.getString("ac_brand");
+
+}
+String Prefs::getACNickname(){
+    return prefs.getString("nickname");
+}
+String Prefs::getRoomType(){
+    return prefs.getString("room_type");
+    
+}
+
 
 
 //Device configurartion

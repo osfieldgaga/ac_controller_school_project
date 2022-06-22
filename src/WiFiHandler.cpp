@@ -3,18 +3,8 @@
 #include <Arduino.h>
 #include <Prefs.hpp>
 
-// const char* ssid1 = "Fido";
-// const char* ssid2 = "Osfield's iPhone";
-// const char* ssid3 = "ZEPHYRUS 4870";
-// //const char* password = "imbecileniais";
-// const char* password3 = "14R5<24L";
-
-// String ssid = "ZEPHYRUS 4870";
-// String password = "14R5<24L";
-
 String ssid;
 String password;
-//Prefs prefs_wifi;
 
 void WiFiHandler::establishWiFi() {
   ssid = Prefs::getWifiSSID();

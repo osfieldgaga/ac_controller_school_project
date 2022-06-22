@@ -8,6 +8,7 @@
 #include <ir_Samsung.h>
 #include <ir_Tcl.h>
 #include <ir_Midea.h>
+#include <ir_Gree.h>
 
 
 //TODO import supported AC libraries
@@ -21,11 +22,11 @@
 #ifdef ARDUINO_ESP32C3_DEV
 const uint16_t kRecvPin = 10;  // 14 on a ESP32-C3 causes a boot loop.
 #else  // ARDUINO_ESP32C3_DEV
-const uint8_t kRecvPin = 13;
+const uint8_t kRecvPin = 17;
 
 #endif  // ARDUINO_ESP32C3_DEV
 
-const uint8_t kSendPin = 14;
+const uint8_t kSendPin = 16;
 
 
 IRsend irsend(kSendPin);
@@ -70,6 +71,33 @@ void IRReceiver::turnOffSamsung(){
     Serial.println(F("Samsung AC off"));
     Serial.println();
     
+}
+
+void IRReceiver::turnOnAC(){ //just an extra one in case
+    //TODO import class and call sendOn() function
+    //irSamsung.sendOn();
+    Serial.println(F("AC On"));
+    Serial.println();
+}
+
+void IRReceiver::turnOffAC(){ //just an extra one in case
+    //TODO import class and call sendOff() function
+    //irSamsung.sendOff();
+    Serial.println(F("AC off"));
+    Serial.println();
+    
+}
+
+void IRReceiver::setACTemp(uint8_t temp){
+
+    //TODO import class and set temperature
+    //irTCL.setTemp(temp);
+    //irTCL.send();
+    Serial.print(F("AC's Temperature set at "));
+    Serial.print(temp);
+    Serial.println(F(" degrees"));
+
+    Serial.println();
 }
 
 void IRReceiver::turnOnTCL(){

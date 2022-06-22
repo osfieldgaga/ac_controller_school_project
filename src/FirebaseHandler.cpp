@@ -1,6 +1,7 @@
 #include <FirebaseHandler.hpp>
 #include <Firebase_ESP_Client.h>
 #include <UniqueIdentifiers.hpp>
+#include <Prefs.hpp>
 // Provide the token generation process info.
 #include <addons/TokenHelper.h>
 
@@ -23,6 +24,8 @@ bool configDone = false;
 String uid;
 
 String path_to_DB = DEVICE_ID_1;
+String path_to_config = path_to_DB + "/" + "configuration/";
+String path_to_parameters = path_to_DB + "/parameters/";
 
 
 void FirebaseHandler::connectFirebase(){
@@ -48,8 +51,6 @@ void FirebaseHandler::connectFirebase(){
 }
 
 void FirebaseHandler::setUpDatabase(){
-    
-    //path_to_DB = path_to_DB + "/";
 
     //create state of the device
     String state_path = F("state");
@@ -65,18 +66,20 @@ void FirebaseHandler::setUpDatabase(){
     bool currentOpMode = false; //false = manual, true = auto
     Firebase.RTDB.setBool(&fbdo, path_to_DB + "/" + operationMode_path, currentOpMode);
 
-    String path_to_config = path_to_DB + "/" + "configuration/";
+    //set tup configuration path
     Firebase.RTDB.setString(&fbdo, path_to_config + "nickname", "[empty]");
     Firebase.RTDB.setString(&fbdo, path_to_config + "ac_brand", "[empty]");
     Firebase.RTDB.setString(&fbdo, path_to_config + "room_type", "[empty]");
 
     Firebase.RTDB.setBool(&fbdo, path_to_config + "configDone", configDone);
 
-    String path_to_parameters = path_to_DB + "/parameters/";
+    //set tup parameters path
     Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "room_temperature", 0.0f);
     Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "outside_temperature", 0.0f);
     Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "room_humidity", 0.0f);
     Firebase.RTDB.setBool(&fbdo, path_to_parameters + "room_occupancy", false);
+
+    
 
     Serial.println(F("Created database (if not already there)"));
 }
@@ -172,4 +175,47 @@ bool FirebaseHandler::onbtainOperationMode(){
     }
 
     return opMode;
+}
+
+void FirebaseHandler::obtainACConfiguration(){
+    String ac_brand, nickname, room_type;
+    if(Firebase.RTDB.getString(&fbdo, path_to_config + "ac_brand")){
+        ac_brand = fbdo.to<String>();
+
+    } else {
+        Serial.print(F("Couldn't fetch AC Brand. Reason: "));
+        ac_brand = "";
+        Serial.println(fbdo.errorReason());
+    }
+
+    if(Firebase.RTDB.getString(&fbdo, path_to_config + "nickname")){
+        nickname = fbdo.to<String>();
+        
+    } else {
+        Serial.print(F("Couldn't fetch AC Nickname. Reason: "));
+        nickname = "";
+        Serial.println(fbdo.errorReason());
+    }
+
+    if(Firebase.RTDB.getString(&fbdo, path_to_config + "room_type")){
+        room_type = fbdo.to<String>();
+
+    } else {
+        room_type = "";
+        Serial.print(F("Couldn't fetch Room Type. Reason: "));
+        Serial.println(fbdo.errorReason());
+    }
+
+    Prefs::setACConfig(ac_brand, nickname, room_type);
+    
+}
+
+void FirebaseHandler::sendRoomTelemetry(float temperature, float humidity){
+
+    //TODO check when it wasn't able to write to DB
+
+    Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "room_temperature", temperature);
+    //Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "outside_temperature", 0.0f);
+    Firebase.RTDB.setFloat(&fbdo, path_to_parameters + "room_humidity", humidity);
+    //Firebase.RTDB.setBool(&fbdo, path_to_parameters + "room_occupancy", false);
 }

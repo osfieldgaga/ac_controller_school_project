@@ -18,12 +18,15 @@ class Prefs{
     static void setWifiPassword(String password);
     static bool checkDeviceConfig();
     static void setDeviceConfig(bool deviceStatus);
-    static std::vector<std::string> getWifiCredentials();
     static bool hasSetPrefsFirstTime();
     static void setPrefsFirstTime();
     static void resetFirstTime();
     static void setFirebaseConfig(bool firebaseStatus);
     static bool checkFirebaseConfig();
+    static void setACConfig(String ac_brand, String nickname, String room_type);
+    static String getACBrand();
+    static String getACNickname();
+    static String getRoomType();
 };
 
 #endif // 
