@@ -3,8 +3,11 @@
 
 class IRReceiver{
     public:
+        uint16_t size;
+
         void initIR();
-        void decodeIR();
+        uint16_t* decodeIR();
+        uint16_t getArraySize();
         int getPinNumber();
         void turnOnSamsung();
         void turnOffSamsung();

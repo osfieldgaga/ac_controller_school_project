@@ -4,6 +4,8 @@
 #include <IRsend.h>
 #include <IRutils.h>
 #include <IR_Receiver.hpp>
+#include <Prefs.hpp>
+#include <LearnIR.hpp>
 
 #include <ir_Samsung.h>
 #include <ir_Tcl.h>
@@ -12,9 +14,7 @@
 
 
 //TODO import supported AC libraries
-//TODO design a function to turn On any type of AC based on the type of the AC we're using
-//TODO set temperature with one fuction based on the type of AC
-//TODO 
+
 // An IR detector/demodulator is connected to GPIO pin 14(D5 on a NodeMCU
 // board).
 // Note: GPIO 16 won't work on the ESP8266 as it does not have interrupts.
@@ -28,7 +28,7 @@ const uint8_t kRecvPin = 17;
 
 const uint8_t kSendPin = 16;
 
-
+LearnIR irLearner;
 IRsend irsend(kSendPin);
 
 const uint16_t kCaptureBufferSize = 1024;
@@ -55,6 +55,8 @@ int IRReceiver::getPinNumber(){
 void IRReceiver::initIR(){
     irrecv.enableIRIn(); 
     irsend.begin();
+
+    //initialize the senders for each brand
     irSamsung.begin();
     irTCL.begin();
     irMidea.begin();
@@ -73,27 +75,104 @@ void IRReceiver::turnOffSamsung(){
     
 }
 
-void IRReceiver::turnOnAC(){ //just an extra one in case
-    //TODO import class and call sendOn() function
-    //irSamsung.sendOn();
-    Serial.println(F("AC On"));
+//List of the different brands and their prefs ID: (all of them will always be in small letters)
+//Samsung = samsung
+//TCL = tcl
+//Midea = midea
+
+
+//quick and easy solution is to use an if else tree
+//whenever you want to add the corresponding fonctin of an AC,
+//create an extra else if block and add the code you need.
+void IRReceiver::turnOnAC()
+{
+    if (Prefs::getACBrand().equals("samsung"))
+    {
+        irSamsung.sendOn();
+        Serial.print(F("Samsung")); // this will complete the last prints at the end of the case statement
+                                    // to for a complete sentence with the AC brand
+    }
+
+    else if (Prefs::getACBrand().equals("tcl"))
+    {
+        irTCL.on();
+        irTCL.send();
+        Serial.print(F("TCL"));
+    }
+
+    else
+    {
+        Serial.print(F("ERROR: Trying to turn ON AC but no case fir the Prefs ID provided, it seems to be wrong, check it. ID is: "));
+        Serial.print(Prefs::getACBrand());
+        Serial.println();
+    }
+
+    Serial.println(F(" AC ON"));
     Serial.println();
 }
 
-void IRReceiver::turnOffAC(){ //just an extra one in case
-    //TODO import class and call sendOff() function
-    //irSamsung.sendOff();
-    Serial.println(F("AC off"));
+//quick and easy solution is to use an if else tree
+//whenever you want to add the corresponding fonctin of an AC,
+//create an extra else if block and add the code you need.
+void IRReceiver::turnOffAC()
+{ 
+
+    if (Prefs::getACBrand().equals("samsung"))
+    {
+        irSamsung.sendOff();
+        Serial.print(F("Samsung")); // this will complete the last prints at the end of the case statement
+                                    // to for a complete sentence with the AC brand
+    }
+
+    else if (Prefs::getACBrand().equals("tcl"))
+    {
+        irTCL.off();
+        irTCL.send();
+        Serial.print(F("TCL"));
+    }
+
+    else
+    {
+        Serial.print(F("ERROR: Trying to turn OFF AC but no case fir the Prefs ID provided, it seems to be wrong, check it. ID is: "));
+        Serial.print(Prefs::getACBrand());
+        Serial.println();
+    }
+
+    Serial.println(F(" AC OFF"));
     Serial.println();
-    
 }
 
-void IRReceiver::setACTemp(uint8_t temp){
 
-    //TODO import class and set temperature
-    //irTCL.setTemp(temp);
-    //irTCL.send();
-    Serial.print(F("AC's Temperature set at "));
+//quick and easy solution is to use an if else tree
+//whenever you want to add the corresponding fonctin of an AC,
+//create an extra else if block and add the code you need.
+void IRReceiver::setACTemp(uint8_t temp)
+{
+
+    // check AC Brand from saved preferences
+    if (Prefs::getACBrand().equals("samsung"))
+    {
+        irSamsung.setTemp(temp);
+        irSamsung.send();
+        Serial.print(F("Samsung")); // this will complete the last prints at the end of the case statement
+                                    // to for a complete sentence with the AC brand
+    }
+
+    else if (Prefs::getACBrand().equals("tcl"))
+    {
+        irTCL.setTemp(temp);
+        irTCL.send();
+        Serial.print(F("TCL"));
+    }
+
+    else
+    {
+        Serial.print(F("ERROR: Trying to change temperature but no case fir the Prefs ID provided, it seems to be wrong, check it. ID is"));
+        Serial.print(Prefs::getACBrand());
+        Serial.println();
+    }
+
+    Serial.print(F(" AC Temperature set at "));
     Serial.print(temp);
     Serial.println(F(" degrees"));
 
@@ -157,8 +236,8 @@ void IRReceiver::turnOffMidea(){
 // }
 
 
-void IRReceiver::decodeIR(){
-  
+uint16_t* IRReceiver::decodeIR(){
+  uint16_t *raw_array;
   if (irrecv.decode(&results)) {  // Grab an IR code
         // Check if the buffer overflowed
         if (results.overflow) {
@@ -166,11 +245,9 @@ void IRReceiver::decodeIR(){
             //Serial.println("Try to increase the \"RAW_BUFFER_LENGTH\" value of " STR(RAW_BUFFER_LENGTH) " in " __FILE__);
             // see also https://github.com/Arduino-IRremote/Arduino-IRremote#modifying-compile-options-with-sloeber-ide
         } else {
-
-           
-            Serial.println();                               // 2 blank lines between entries
+            
             Serial.println();
-            Serial.println(F("Results 1"));
+            Serial.println(F("Results"));
             
             Serial.print(F("Bits: "));
             Serial.print(results.bits);
@@ -178,21 +255,36 @@ void IRReceiver::decodeIR(){
             Serial.print(F("Timing info: "));
             Serial.print(resultToTimingInfo(&results));
 
-            delay(5000);
+            // delay(5000);
           
-            Serial.println();
-            Serial.print(F("Sending IR received"));
-            Serial.println();
-            uint16_t *raw_array = resultToRawArray(&results);
-  
-            uint16_t size = getCorrectedRawLength(&results);
-            irsend.sendRaw(raw_array, size, kFrequency); //send 38kHZ  
+            // Serial.println();
+            // Serial.print(F("Sending IR received"));
+            // Serial.println();
+            raw_array = resultToRawArray(&results);
+            size = getCorrectedRawLength(&results);
 
+            // for(int i = 0; i<size; i++){
+            //     Serial.print(raw_array[i]);
+            //     Serial.print(" ");
+            // }
+
+            //irLearner.storeIRCode(raw_array, size, "on", 1);
+            
+
+            //irsend.sendRaw(raw_array, size, kFrequency); //send 38kHZ  
+            //irsend.sendRaw(irLearner.readIRCode(1, "on"), size, kFrequency); //send 38kHZ  
+            
         }
         irrecv.resume();   
+        return raw_array;
         
-        
+    }else {
+        return NULL;
     }
         
 
+}
+
+uint16_t IRReceiver::getArraySize(){
+    return size;
 }

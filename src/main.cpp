@@ -4,6 +4,7 @@
 #include <WiFiHandler.hpp>
 #include <UniqueIdentifiers.hpp>
 #include <Prefs.hpp>
+#include <LearnIR.hpp>
 
 #include <BTManager.hpp>
 
@@ -34,6 +35,8 @@ IRReceiver irReceiver;
 WiFiHandler wifiHandler;
 FirebaseHandler firebaseHandler;
 BTManager btManager;
+LearnIR learnIR;
+
 
 uint8_t currentState = 0;
 
@@ -302,11 +305,9 @@ void loop() {
     Serial.println();
   }
  
-
-  
-
   irReceiver.decodeIR();
   yield();
+
 
   //change this!
   if(Serial.available()){
@@ -345,6 +346,9 @@ void loop() {
       irReceiver.turnOffAC();
     }else if(command.toInt() >= 16 && command.toInt() <= 30){
       irReceiver.setACTemp(command.toInt());
+    }else if(command.equals("learn")){
+      learnIR.clearAll();
+      learnIR.learnIRSequence(1);
     }
     
 
@@ -353,6 +357,16 @@ void loop() {
       Serial.println(F("Reset preferences and restarting"));
 
       ESP.restart();
+    }
+
+    else if(command.equals("show_prefs")){
+      Serial.println(F("Device configuration:"));
+      Serial.print(F("AC Brand: "));
+      Serial.println(Prefs::getACBrand());
+      Serial.print(F("AC Nickname: "));
+      Serial.println(Prefs::getACNickname());
+      Serial.print(F("Room Type: "));
+      Serial.println(Prefs::getRoomType());
     }
     
     else{

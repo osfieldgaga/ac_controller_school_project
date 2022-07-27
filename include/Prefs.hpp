@@ -4,6 +4,10 @@
 #include <string>
 #include <vector>
 
+#include <FS.h>
+#include <SPIFFS.h>
+
+
 
 class Prefs{
     public:
@@ -27,6 +31,16 @@ class Prefs{
     static String getACBrand();
     static String getACNickname();
     static String getRoomType();
+
+    
+    void listDir(fs::FS &fs, const char * dirname, uint8_t levels);
+    String readFile(fs::FS &fs, const char * path);
+    void writeFile(fs::FS &fs, const char * path, const char * message);
+    void appendFile(fs::FS &fs, const char * path, const char * message);
+    void renameFile(fs::FS &fs, const char * path1, const char * path2);
+    void deleteFile(fs::FS &fs, const char * path);
+
+    private:
 };
 
 #endif // 
