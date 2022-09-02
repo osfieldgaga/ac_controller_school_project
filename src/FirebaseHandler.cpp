@@ -158,10 +158,19 @@ uint8_t FirebaseHandler::obtainACTemperature(){
     }else{
         Serial.println(F("Could not get AC temperature. Reason: "));
         Serial.println(fbdo.errorReason());
-        temperature = NULL;
+        temperature = -1;
     }
 
     return temperature;
+}
+
+void FirebaseHandler::writeACTemp(int temperature){
+    if(Firebase.RTDB.setInt(&fbdo, path_to_DB + "/" + "temperature", temperature)){
+       
+    }else{
+        Serial.println(F("Could not set AC temperature. Reason: "));
+        Serial.println(fbdo.errorReason());
+    }
 }
 
 bool FirebaseHandler::onbtainOperationMode(){

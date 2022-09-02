@@ -20,6 +20,8 @@ class FirebaseHandler{
         void setUpDatabase();
         uint8_t obtainACState();
         uint8_t obtainACTemperature();
+        void writeACTemp(int temperature);
+        void writeACTState(int temperature);
         bool onbtainOperationMode();
         bool checkIfConfigDone();
         void obtainACConfiguration();

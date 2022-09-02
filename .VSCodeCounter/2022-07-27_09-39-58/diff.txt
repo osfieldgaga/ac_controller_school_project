@@ -1,0 +1,40 @@
+Date : 2022-07-27 09:39:58
+Directory : c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller
+Total : 12 files,  662 codes, 48 comments, 99 blanks, all 809 lines
+
+Languages
++--------------------+------------+------------+------------+------------+------------+
+| language           | files      | code       | comment    | blank      | total      |
++--------------------+------------+------------+------------+------------+------------+
+| C++                |         10 |        595 |         50 |         99 |        744 |
+| JSON with Comments |          1 |         67 |          0 |          0 |         67 |
+| Ini                |          1 |          0 |         -2 |          0 |         -2 |
++--------------------+------------+------------+------------+------------+------------+
+
+Directories
++---------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                                          | files      | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                                             |         12 |        662 |         48 |         99 |        809 |
+| include                                                                                                       |          4 |         35 |          1 |         10 |         46 |
+| src                                                                                                           |          6 |        560 |         49 |         89 |        698 |
++---------------------------------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++---------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| filename                                                                                                      | language           | code       | comment    | blank      | total      |
++---------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\include\FirebaseHandler.hpp | C++                |          2 |          0 |          0 |          2 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\include\IR_Receiver.hpp     | C++                |          5 |          0 |          0 |          5 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\include\LearnIR.hpp         | C++                |         13 |          1 |          5 |         19 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\include\Prefs.hpp           | C++                |         15 |          0 |          5 |         20 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\platformio.ini              | Ini                |          0 |         -2 |          0 |         -2 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\FirebaseHandler.cpp     | C++                |         52 |          0 |         15 |         67 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\IR_Receiver.cpp         | C++                |         74 |         26 |         20 |        120 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\LearnIR.cpp             | C++                |        265 |         47 |         38 |        350 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\Prefs.cpp               | C++                |        107 |         11 |         26 |        144 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\WiFiHandler.cpp         | C++                |          0 |         -8 |         -2 |        -10 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\main.cpp                | C++                |         62 |        -27 |         -8 |         27 |
+| c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\workspace.code-workspace    | JSON with Comments |         67 |          0 |          0 |         67 |
+| Total                                                                                                         |                    |        662 |         48 |         99 |        809 |
++---------------------------------------------------------------------------------------------------------------+--------------------+------------+------------+------------+------------+

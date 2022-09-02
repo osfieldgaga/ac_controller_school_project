@@ -5,6 +5,7 @@
 #include <UniqueIdentifiers.hpp>
 #include <Prefs.hpp>
 #include <LearnIR.hpp>
+#include <SmartTemperature.hpp>
 
 #include <BTManager.hpp>
 
@@ -15,20 +16,21 @@
 #include <string>
 
 //#include <Adafruit_Sensor.h>
-//#include <DHT.h> //TODO add DHT library
+#include <DHT.h> //TODO add DHT library
 
 //Constants
 #define DHTPIN 4     // what pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302)
-//DHT dht(DHTPIN, DHTTYPE); ////TODO Initialize DHT sensor for normal 16mhz Arduino
+DHT dht(DHTPIN, DHTTYPE); ////TODO Initialize DHT sensor for normal 16mhz Arduino
 
 //Variables
 
 float hum, temp;  //Stores humidity value
 
-int dht_millis; //Stores temperature value
+int dht_millis; //Stores temperature delay value
+int smartTemp_millis; //Stores temperature delay value
 
-
+bool auto_check;
 //EEPROM_Manager eeprom;
 IRReceiver irReceiver;
 //IRSender irSender;
@@ -36,6 +38,7 @@ WiFiHandler wifiHandler;
 FirebaseHandler firebaseHandler;
 BTManager btManager;
 LearnIR learnIR;
+SmartTemperature smartTemp;
 
 
 uint8_t currentState = 0;
@@ -45,10 +48,13 @@ uint8_t currentState = 0;
 
 const int kFirebaseRefreshRate = 5000; //2000ms = 2 seconds
 unsigned long now = 0, now2 = 0;
-uint8_t prevACState, prevACTemperature;
-bool operationMode;
+uint8_t prevACState, prevACTemperature, currentACTemp;
+bool operationMode, operationMode_temp;
+
+int ACTemperature;
 
 void setup() {
+  auto_check = false;
   //initialize preferences system
   Prefs::initPrefs();
 
@@ -64,7 +70,7 @@ void setup() {
   //delay(5000);
   
   //TODO initialize dht
-  //dht.begin();
+  dht.begin();
   dht_millis = 0;
 
  
@@ -87,7 +93,7 @@ void setup() {
     currentState = 1;
   }
   
-
+  currentACTemp = 24; //default value
 }
 
 void loop() {
@@ -189,8 +195,13 @@ void loop() {
     
     operationMode = firebaseHandler.onbtainOperationMode();
 
+    // if(operationMode != operationMode_temp){
+    //   operationMode = operationMode_temp;
+    // }
+
     if (operationMode == false)
     {
+      auto_check = false;
       if (firebaseHandler.checkStatus() && millis() - now > kFirebaseRefreshRate)
       {
         now = millis();
@@ -269,7 +280,49 @@ void loop() {
     else
     {
       // TODO implement automatic behavior
-      Serial.println(F("Automatic Mode activated."));
+      if(!auto_check){
+        Serial.println(F("Automatic Mode activated.\n"));
+        Serial.println(F("Setting AC temperature at median point 24.0"));
+        firebaseHandler.writeACTemp(24);
+        Serial.print(24);
+        auto_check = true;
+      }
+      
+      
+      if (millis() - smartTemp_millis > 10000)
+      {
+        smartTemp_millis = millis();
+        ACTemperature = firebaseHandler.obtainACTemperature();
+        
+        if(firebaseHandler.obtainACTemperature() > 0){
+          ACTemperature = firebaseHandler.obtainACTemperature();
+        }
+        hum = dht.readHumidity();    
+        temp = dht.readTemperature();
+
+        float newTemp = smartTemp.getSmartTemp(temp, hum, ACTemperature);
+
+        if (newTemp != ACTemperature)
+        {
+          firebaseHandler.writeACTemp(newTemp);
+          Serial.print("Current AC Temperature: ");
+          Serial.print(ACTemperature);
+          Serial.println();
+          Serial.print("Changed temperature in DB to: ");
+          Serial.print(newTemp);
+          Serial.println();
+          irReceiver.setACTemp(newTemp);
+        } else {
+          Serial.print("Current AC Temperature is ");
+          Serial.print(ACTemperature);
+          Serial.print(", no change needed.");
+          Serial.println();
+        }
+      }
+
+
+      
+    //Print temp and humidity values to serial monitor
     }
 
     // check tmperature and humidity
@@ -305,8 +358,8 @@ void loop() {
     Serial.println();
   }
  
-  irReceiver.decodeIR();
-  yield();
+  // irReceiver.decodeIR();
+  // yield();
 
 
   //change this!
@@ -367,20 +420,32 @@ void loop() {
       Serial.println(Prefs::getACNickname());
       Serial.print(F("Room Type: "));
       Serial.println(Prefs::getRoomType());
+    } 
+    
+    else if(command.equals("pmv")){
+      float h = dht.readHumidity();
+      float t = dht.readTemperature();
+
+      if (isnan(h) || isnan(t))
+      {
+        Serial.println(F("Failed to read from DHT sensor!"));
+      }
+      else
+      {
+        Serial.print("Temperature: ");
+        Serial.print(t);
+        Serial.println();
+
+        Serial.print("Humidity: ");
+        Serial.print(h);
+        Serial.println();
+
+        smartTemp.getPMV(t, h);
+      }
     }
     
     else{
       Serial.println(F("Not a valid command"));
     }
   }
-}
-
-void LearnIR(){
-  Serial.print(F("Initiating learning sequence..."));
-  Serial.println(F("----------------"));
-  //Serial.println("t")
-
-
-
-  
 }

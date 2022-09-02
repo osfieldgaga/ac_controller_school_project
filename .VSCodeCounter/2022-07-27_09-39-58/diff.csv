@@ -1,0 +1,14 @@
+"filename", "language", "JSON with Comments", "Ini", "C++", "comment", "blank", "total"
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\include\FirebaseHandler.hpp", "C++", 0, 0, 2, 0, 0, 2
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\include\IR_Receiver.hpp", "C++", 0, 0, 5, 0, 0, 5
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\include\LearnIR.hpp", "C++", 0, 0, 13, 1, 5, 19
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\include\Prefs.hpp", "C++", 0, 0, 15, 0, 5, 20
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\platformio.ini", "Ini", 0, 0, 0, -2, 0, -2
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\FirebaseHandler.cpp", "C++", 0, 0, 52, 0, 15, 67
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\IR_Receiver.cpp", "C++", 0, 0, 74, 26, 20, 120
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\LearnIR.cpp", "C++", 0, 0, 265, 47, 38, 350
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\Prefs.cpp", "C++", 0, 0, 107, 11, 26, 144
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\WiFiHandler.cpp", "C++", 0, 0, 0, -8, -2, -10
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\src\main.cpp", "C++", 0, 0, 62, -27, -8, 27
+"c:\Users\Osfield\Documents\PlatformIO\Projects\school_project_Smart_AC_Controller\workspace.code-workspace", "JSON with Comments", 67, 0, 0, 0, 0, 67
+"Total", "-", 67, 0, 595, 48, 99, 809
