@@ -255,11 +255,11 @@ uint16_t* IRReceiver::decodeIR(){
             Serial.print(F("Timing info: "));
             Serial.print(resultToTimingInfo(&results));
 
-            // delay(5000);
+             delay(5000);
           
-            // Serial.println();
-            // Serial.print(F("Sending IR received"));
-            // Serial.println();
+             Serial.println();
+             Serial.print(F("Sending IR received"));
+             Serial.println();
             raw_array = resultToRawArray(&results);
             size = getCorrectedRawLength(&results);
 
@@ -270,8 +270,10 @@ uint16_t* IRReceiver::decodeIR(){
 
             //irLearner.storeIRCode(raw_array, size, "on", 1);
             
-
-            //irsend.sendRaw(raw_array, size, kFrequency); //send 38kHZ  
+          
+            irsend.sendRaw(raw_array, size, kFrequency); //send 38kHZ  
+            Serial.print(F("IR Sent"));
+            Serial.println();
             //irsend.sendRaw(irLearner.readIRCode(1, "on"), size, kFrequency); //send 38kHZ  
             
         }

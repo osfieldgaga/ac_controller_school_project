@@ -6,6 +6,8 @@
 #include <Prefs.hpp>
 #include <LearnIR.hpp>
 #include <SmartTemperature.hpp>
+#include <BodyDetection.hpp>
+#include <IRsend.h>
 
 #include <BTManager.hpp>
 
@@ -16,19 +18,25 @@
 #include <string>
 
 //#include <Adafruit_Sensor.h>
-#include <DHT.h> //TODO add DHT library
+#include <DHT.h>
 
 //Constants
 #define DHTPIN 4     // what pin we're connected to
 #define DHTTYPE DHT22   // DHT 22  (AM2302)
-DHT dht(DHTPIN, DHTTYPE); ////TODO Initialize DHT sensor for normal 16mhz Arduino
+DHT dht(DHTPIN, DHTTYPE);
 
 //Variables
+
+const uint8_t kFrequency = 38;
+uint16_t size = 868;
 
 float hum, temp;  //Stores humidity value
 
 int dht_millis; //Stores temperature delay value
 int smartTemp_millis; //Stores temperature delay value
+int bodyDetect_millis; //Stores body detector delay value
+int bodyDetect_count = 12;
+int bodyDetect_matrixSum = 0;
 
 bool auto_check;
 //EEPROM_Manager eeprom;
@@ -39,6 +47,8 @@ FirebaseHandler firebaseHandler;
 BTManager btManager;
 LearnIR learnIR;
 SmartTemperature smartTemp;
+BodyDetection bodyDetector;
+IRsend irSend(16);
 
 
 uint8_t currentState = 0;
@@ -59,13 +69,13 @@ void setup() {
   Prefs::initPrefs();
 
   // put your setup code here, to run once:
-  //eeprom.initializeMemory(); //compulsory
 
   //set up stuff for IR stuff
   Serial.begin(9600);
   irReceiver.initIR(); // Start the receiver
 
   btManager.initBT();
+  bodyDetector.initializeBodyDetector();
 
   //delay(5000);
   
@@ -152,7 +162,7 @@ void loop() {
         }
         else
         {
-          currentState = 4; //else, device was configured before and just go to ormal operation mode
+          currentState = 4; //else, device was configured before and just go to normal operation mode
         }
       }
     }else{
@@ -193,11 +203,8 @@ void loop() {
 
   case 4:
     
-    operationMode = firebaseHandler.onbtainOperationMode();
-
-    // if(operationMode != operationMode_temp){
-    //   operationMode = operationMode_temp;
-    // }
+    //operationMode = firebaseHandler.onbtainOperationMode();
+    operationMode = true;
 
     if (operationMode == false)
     {
@@ -289,7 +296,8 @@ void loop() {
       }
       
       
-      if (millis() - smartTemp_millis > 10000)
+      if (millis() - smartTemp_millis > 600000) //check every 10 minutes
+                                                // to give time for the AC o set the temperature
       {
         smartTemp_millis = millis();
         ACTemperature = firebaseHandler.obtainACTemperature();
@@ -318,6 +326,26 @@ void loop() {
           Serial.print(", no change needed.");
           Serial.println();
         }
+      }
+
+      if(millis() - bodyDetect_millis > 5000){ //check every five seconds, 12 times
+          bodyDetect_millis = millis();
+          //bodyDetect_matrixSum += bodyDetector.createMaskMatrix(dht.readTemperature());
+          // bodyDetect_count--;
+
+          // if(bodyDetect_count == 0){
+          //   bodyDetect_count = 12;
+          //   Serial.println();
+          //   Serial.print("Assessing room occupancy");
+          //   Serial.println();
+          //   Serial.print("Mask Matrix sum: ");
+          //   Serial.print(bodyDetect_matrixSum);
+          //   Serial.print("      ");
+          //   Serial.print((bodyDetect_matrixSum * 100) / (64*12));
+          //   Serial.print("%");
+          //   Serial.println();
+          //   bodyDetect_matrixSum = 0;
+          // }
       }
 
 
@@ -358,8 +386,8 @@ void loop() {
     Serial.println();
   }
  
-  // irReceiver.decodeIR();
-  // yield();
+   irReceiver.decodeIR();
+       yield();
 
 
   //change this!
@@ -442,6 +470,38 @@ void loop() {
 
         smartTemp.getPMV(t, h);
       }
+    }
+
+    else if(command.equals("matrix")) {
+      bodyDetector.createMaskMatrix(dht.readTemperature());
+    }
+
+    else if(command.equals("eyes")){
+      bodyDetector.detectPresence(dht.readTemperature());
+    }
+    else if(command.equals("eyes2")){
+      bodyDetector.detectPresenceV2();
+    }
+
+    else if(command.equals("test_on")){
+      Serial.print("Sending test IR");
+      uint16_t* raw = learnIR.readIRCode(1, "on");
+      uint16_t raw_arr[868];
+      int i = 0;
+      for(i = 0; i< 868; i++){
+        raw_arr[i] = raw[i];
+      }
+      irSend.sendRaw(raw_arr, size, kFrequency);
+    }
+
+    else if(command.equals("check_ir_on")){
+      Serial.print("Sending test IR");
+      Serial.println();
+      uint16_t* arr = learnIR.readIRCode(1, "on");
+      delay(2000);
+      irSend.sendRaw(arr, size, kFrequency);
+      Serial.print("Test IR Sent");
+      Serial.println();
     }
     
     else{

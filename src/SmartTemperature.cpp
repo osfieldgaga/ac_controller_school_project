@@ -2,7 +2,8 @@
 #include <stdlib.h>
 //#include <pmv_model.h>
 #include <Arduino.h>
-#include <pmv_tree_model_lite.h>
+//#include <pmv_tree_model_lite.h>
+#include <pmv_tree_model_optimized.h>
 
 
 Eloquent::ML::Port::DecisionTreeRegressor clf;
@@ -13,7 +14,7 @@ Eloquent::ML::Port::DecisionTreeRegressor clf;
 #define k_PMVLowerLimit -0.5
 #define k_PMVUpperLimit 0.5
 
-float k_ClothingInsulation = 0.1;
+float k_ClothingInsulation = 0.55;
 float k_MonthlyTemp = 27.5; //81.5F
 float k_AirVelocity = 0.1;
 
@@ -23,7 +24,7 @@ int number_of_pmv_checks = 0;
 
 float SmartTemperature::pmv(float temperature, float humidity){
     //float data[5] = {temperature, humidity, k_ClothingInsulation, k_AirVelocity, k_MonthlyTemp};
-    float data[2] = {temperature, humidity};
+    float data[4] = {temperature, humidity, k_ClothingInsulation, k_MonthlyTemp};
     float pmv = clf.predict(data);
 
    // test variable
